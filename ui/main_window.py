@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/main_window.ui'
+# Form implementation generated from reading ui file 'ui\main_window.ui'
 #
-# Created: Thu Oct 15 23:23:51 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Tue Jun 14 16:41:53 2016
+#      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -97,7 +97,7 @@ class Ui_ui_main_window(object):
         self.horizontalLayout.addWidget(self.listWidget)
         self.verticalLayout_13 = QtGui.QVBoxLayout()
         self.verticalLayout_13.setObjectName(_fromUtf8("verticalLayout_13"))
-        self.messageBar = gui.QgsMessageBar(ui_main_window)
+        self.messageBar = QgsMessageBar(ui_main_window)
         self.messageBar.setObjectName(_fromUtf8("messageBar"))
         self.verticalLayout_13.addWidget(self.messageBar)
         self.stackedWidget = QtGui.QStackedWidget(ui_main_window)
@@ -167,6 +167,9 @@ class Ui_ui_main_window(object):
         self.radioButton_outputShape = QtGui.QRadioButton(self.groupBox_7)
         self.radioButton_outputShape.setObjectName(_fromUtf8("radioButton_outputShape"))
         self.verticalLayout_11.addWidget(self.radioButton_outputShape)
+        self.radioButton_outputSpatialite = QtGui.QRadioButton(self.groupBox_7)
+        self.radioButton_outputSpatialite.setObjectName(_fromUtf8("radioButton_outputSpatialite"))
+        self.verticalLayout_11.addWidget(self.radioButton_outputSpatialite)
         self.verticalLayout_2.addWidget(self.groupBox_7)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem1)
@@ -179,7 +182,7 @@ class Ui_ui_main_window(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 89, 58))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 645, 592))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.verticalLayout_5 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
@@ -207,7 +210,7 @@ class Ui_ui_main_window(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, -39, 636, 845))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 628, 710))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_9 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_9.setObjectName(_fromUtf8("verticalLayout_9"))
@@ -380,7 +383,7 @@ class Ui_ui_main_window(object):
 
         self.retranslateUi(ui_main_window)
         self.listWidget.setCurrentRow(-1)
-        self.stackedWidget.setCurrentIndex(6)
+        self.stackedWidget.setCurrentIndex(4)
         QtCore.QObject.connect(self.listWidget, QtCore.SIGNAL(_fromUtf8("currentRowChanged(int)")), self.stackedWidget.setCurrentIndex)
         QtCore.QMetaObject.connectSlotsByName(ui_main_window)
         ui_main_window.setTabOrder(self.pushButton_OAPI_timestamp, self.listWidget)
@@ -411,6 +414,7 @@ class Ui_ui_main_window(object):
         self.groupBox_7.setTitle(_translate("ui_main_window", "Outputs", None))
         self.radioButton_outputJson.setText(_translate("ui_main_window", "GeoJSON (not editable, column\'s name longer)", None))
         self.radioButton_outputShape.setText(_translate("ui_main_window", "Shapefile (editable, column\'s name shorter)", None))
+        self.radioButton_outputSpatialite.setText(_translate("ui_main_window", "SpatiaLite (editable, column names longer, one file)", None))
         self.pushButton_homeHelp.setText(_translate("ui_main_window", "Home", None))
         self.groupBox_2.setTitle(_translate("ui_main_window", "Realization", None))
         self.groupBox_5.setTitle(_translate("ui_main_window", "Supervision", None))
@@ -427,8 +431,8 @@ class Ui_ui_main_window(object):
         self.label_19.setText(_translate("ui_main_window", "Github\'s repository", None))
         self.groupBox_4.setTitle(_translate("ui_main_window", "Licence", None))
 
-from qgis import gui
 from PyQt4 import QtWebKit
+from qgis.gui import QgsMessageBar
 from query_dialog import QueryWidget
 from osm_file_dialog import OsmFileWidget
 from quick_query_dialog import QuickQueryWidget

@@ -33,7 +33,8 @@ from qgis.core import (
     QgsGeometry,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
-    QgsMapLayerRegistry
+    QgsMapLayerRegistry,
+    QgsMessageLog
 )
 
 from QuickOSM.core.utilities.utilities_qgis import display_message_bar
@@ -249,7 +250,8 @@ class QuickOSMWidget(QWidget):
         print(exc_type, f_name, exc_tb.tb_lineno)
         _, _, tb = exc_info()
         import traceback
-        traceback.print_tb(tb)
+        # traceback.print_tb(tb)
+        QgsMessageLog.logMessage(unicode(e) + '\n' + ' '.join(traceback.format_tb(tb)), "Python Errors")
         print e
         display_message_bar(
             tr('QuickOSM', 'Error in the python console, please report it'),

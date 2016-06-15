@@ -24,8 +24,10 @@
 import tempfile
 from os.path import dirname, abspath, join, isfile
 from PyQt4.QtGui import QApplication
+from pyspatialite import dbapi2 as sqlitedb
 from qgis.core import \
-    QGis, QgsVectorLayer, QgsVectorFileWriter, QgsAction, QgsMapLayerRegistry
+    QGis, QgsVectorLayer, QgsVectorFileWriter, QgsVectorLayerImport, \
+    QgsDataSourceURI, QgsAction, QgsMapLayerRegistry
 
 from QuickOSM.core.query_factory import QueryFactory
 from QuickOSM.core.utilities.tools import tr
@@ -45,18 +47,20 @@ def get_outputs(output_dir, output_format, prefix_file, layer_name):
     for layer in ['points', 'lines', 'multilinestrings', 'multipolygons']:
         if not output_dir:
             # if no directory, get a temporary file
-
+            
+            temp_file = None
             if output_format == "shape":
                 temp_file = tempfile.NamedTemporaryFile(
                     delete=False, suffix="_" + layer + "_quickosm.shp")
-            else:
+            elif output_format == "geojson" :
                 # We should avoid this copy of geojson in the temp folder
                 temp_file = tempfile.NamedTemporaryFile(
                     delete=False, suffix="_" + layer + "_quickosm.geojson")
 
-            outputs[layer] = temp_file.name
-            temp_file.flush()
-            temp_file.close()
+            if temp_file:
+                outputs[layer] = temp_file.name
+                temp_file.flush()
+                temp_file.close()
 
         else:
             if not prefix_file:
@@ -65,12 +69,22 @@ def get_outputs(output_dir, output_format, prefix_file, layer_name):
             if output_format == "shape":
                 outputs[layer] = join(
                     output_dir, prefix_file + "_" + layer + ".shp")
-            else:
+            elif output_format == "geojson":
                 outputs[layer] = join(
                     output_dir, prefix_file + "_" + layer + ".geojson")
 
             if isfile(outputs[layer]):
                 raise FileOutPutException(suffix='(' + outputs[layer] + ')')
+                
+        if output_format == "spatialite":
+            outputs[layer] = layer + "_quickosm"
+                
+    if output_format == "spatialite":
+        if not output_dir:
+            output_file = tempfile.NamedTemporaryFile(delete=False, suffix= "_quickosm.sqlite")
+            outputs['file'] = output_file.name
+            output_file.flush()
+            output_file.close()
 
     return outputs
 
@@ -104,6 +118,13 @@ def open_file(
     num_layers = 0
     if output_format == "shape":
         dialog.set_progress_text(tr("QuickOSM", u"From GeoJSON to Shapefile"))
+    if output_format == "spatialite":
+        dialog.set_progress_text(tr("QuickOSM", u"From GeoJSON to SpatiaLite"))
+        # create spatialite DB
+        conn = sqlitedb.connect(outputs['file'])
+        cur = conn.cursor()
+        cur.execute("SELECT initSpatialMetadata(1)")
+        conn.close()
 
     for i, (layer, item) in enumerate(layers.iteritems()):
         dialog.set_progress_percentage(i / len(layers) * 100)
@@ -126,21 +147,32 @@ def open_file(
 
             encoding = get_default_encoding()
             if output_format == "shape":
-                writer = QgsVectorFileWriter(
-                    outputs[layer],
-                    encoding,
+                provider = "ESRI Shapefile"
+            elif output_format == "geojson":
+                provider = "GeoJSON"
+               
+            if output_format == "spatialite":
+                uri = QgsDataSourceURI()
+                uri.setDatabase(outputs['file'])
+                uri.setDataSource('', outputs[layer], 'geom')
+                layer_source = uri.uri()
+                layer_provider = 'spatialite'
+                writer = QgsVectorLayerImport(
+                    layer_source,
+                    layer_provider,
                     geojson_layer.pendingFields(),
                     osm_geometries[layer],
-                    geojson_layer.crs(),
-                    "ESRI Shapefile")
+                    geojson_layer.crs())
             else:
+                layer_source = outputs[layer]
+                layer_provider = 'ogr'
                 writer = QgsVectorFileWriter(
-                    outputs[layer],
+                    layer_source,
                     encoding,
                     geojson_layer.pendingFields(),
                     osm_geometries[layer],
                     geojson_layer.crs(),
-                    "GeoJSON")
+                    provider)
 
             for f in geojson_layer.getFeatures():
                 writer.addFeature(f)
@@ -148,7 +180,7 @@ def open_file(
             del writer
 
             # Loading the final vector file
-            new_layer = QgsVectorLayer(outputs[layer], final_layer_name, "ogr")
+            new_layer = QgsVectorLayer(layer_source, final_layer_name, layer_provider)
 
             # Try to set styling if defined
             if config_outputs and config_outputs[layer]['style']:
@@ -202,7 +234,7 @@ def open_file(
                     False)
 
             # Add index if possible
-            if output_format == "shape":
+            if output_format == "shape" or output_format == "spatialite":
                 new_layer.dataProvider().createSpatialIndex()
 
             QgsMapLayerRegistry.instance().addMapLayer(new_layer)

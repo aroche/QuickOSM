@@ -82,6 +82,8 @@ class MainWindowDialog(QDialog, Ui_ui_main_window):
             self.radioButton_outputJson.setChecked(True)
         elif self.outputFormat == "shape":
             self.radioButton_outputShape.setChecked(True)
+        elif self.outputFormat == "spatialite":
+            self.radioButton_outputSpatialite.setChecked(True)
         else:
             set_setting('outputFormat', 'shape')
             self.radioButton_outputShape.setChecked(True)
@@ -145,6 +147,8 @@ class MainWindowDialog(QDialog, Ui_ui_main_window):
         """
         if self.radioButton_outputJson.isChecked():
             set_setting('outputFormat', 'geojson')
+        elif self.radioButton_outputSpatialite.isChecked():
+            set_setting('outputFormat', 'spatialite')
         else:
             set_setting('outputFormat', 'shape')
 
