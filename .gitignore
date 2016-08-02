@@ -6,4 +6,3 @@ help/
 .idea
 .coverage
 .noseids
-*.db
